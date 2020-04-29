@@ -391,11 +391,14 @@ class StoryView extends StatefulWidget {
   // Controls the playback of the stories
   final StoryController controller;
 
+  final VoidCallback onPreviousFirstItem;
+
   StoryView({
     @required this.storyItems,
     @required this.controller,
     this.onComplete,
     this.onStoryShow,
+    this.onPreviousFirstItem,
     this.progressPosition = ProgressPosition.top,
     this.repeat = false,
     this.inline = false,
@@ -569,7 +572,13 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     }
 
     if (this._currentStory == widget.storyItems.first) {
-      _beginPlay();
+      // call to parent: previous func
+      if (widget.onPreviousFirstItem == null) {
+        _beginPlay();
+      } else {
+        widget.onPreviousFirstItem();
+      }
+      
     } else {
       this._currentStory.shown = false;
       int lastPos = widget.storyItems.indexOf(this._currentStory);
