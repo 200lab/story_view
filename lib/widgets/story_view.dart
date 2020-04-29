@@ -482,6 +482,15 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
 
     _play();
   }
+  
+  @override
+  didUpdateWidget(StoryView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.storyItems != this.widget.storyItems) {
+      _play();
+    }
+  }
 
   @override
   void dispose() {
