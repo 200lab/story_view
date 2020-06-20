@@ -393,6 +393,8 @@ class StoryView extends StatefulWidget {
 
   final VoidCallback onPreviousFirstItem;
 
+  final Function onCompleteStoryItem;
+
   StoryView({
     @required this.storyItems,
     @required this.controller,
@@ -402,6 +404,7 @@ class StoryView extends StatefulWidget {
     this.progressPosition = ProgressPosition.top,
     this.repeat = false,
     this.inline = false,
+    this.onCompleteStoryItem,
     this.onVerticalSwipeComplete,
   })  : assert(storyItems != null && storyItems.length > 0,
             "[storyItems] should not be null or empty"),
@@ -529,6 +532,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         storyItem.shown = true;
+        widget.onCompleteStoryItem?.call();
         if (widget.storyItems.last != storyItem) {
           _beginPlay();
         } else {
