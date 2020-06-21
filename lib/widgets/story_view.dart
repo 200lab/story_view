@@ -393,7 +393,7 @@ class StoryView extends StatefulWidget {
 
   final VoidCallback onPreviousFirstItem;
 
-  final Function onCompleteStoryItem;
+  final Function(int index) onCompleteStoryItem;
 
   StoryView({
     @required this.storyItems,
@@ -488,7 +488,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
 
     _play();
   }
-  
+
   @override
   didUpdateWidget(StoryView oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -532,7 +532,8 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         storyItem.shown = true;
-        widget.onCompleteStoryItem?.call();
+        widget.onCompleteStoryItem
+            ?.call(widget.storyItems.indexOf(_currentStory));
         if (widget.storyItems.last != storyItem) {
           _beginPlay();
         } else {
@@ -582,7 +583,6 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
       } else {
         widget.onPreviousFirstItem();
       }
-      
     } else {
       this._currentStory.shown = false;
       int lastPos = widget.storyItems.indexOf(this._currentStory);
