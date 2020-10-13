@@ -520,6 +520,12 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     // get the next playing page
     final storyItem = widget.storyItems.firstWhere((it) {
       return !it.shown;
+    },orElse: () {
+      widget.storyItems.forEach((it2) {
+        it2.shown = false;
+      });
+
+      return widget.storyItems[0];
     });
 
     if (widget.onStoryShow != null) {
