@@ -1,4 +1,17 @@
-## [0.12.1] - 24 Apr 2020.
+## [0.12.5] - 14 Nov 2020.
+Upgraded video_player to latest version
+
+## [0.12.4] - 29 Oct 2020.
+Upgraded flutter_cache_manager to latest version
+
+## [0.12.3] - 14 May 2020.
+`fontSize` has been replaced with `textStyle`. Minor breaking change.
+
+## [0.12.2] - 26 Apr 2020.
+
+Update dependencies.
+
+## [0.12.1] - 25 Apr 2020.
 
 Fix issue #40 and #41. Refactor interaction events to use controller.
 

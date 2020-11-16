@@ -52,8 +52,8 @@ class StoryItem {
   static StoryItem text({
     @required String title,
     @required Color backgroundColor,
+    TextStyle textStyle,
     bool shown = false,
-    double fontSize = 18,
     bool roundedTop = false,
     bool roundedBottom = false,
     Duration duration,
@@ -84,10 +84,13 @@ class StoryItem {
         child: Center(
           child: Text(
             title,
-            style: TextStyle(
-              color: contrast > 1.8 ? Colors.white : Colors.black,
-              fontSize: fontSize,
-            ),
+            style: textStyle?.copyWith(
+                  color: contrast > 1.8 ? Colors.white : Colors.black,
+                ) ??
+                TextStyle(
+                  color: contrast > 1.8 ? Colors.white : Colors.black,
+                  fontSize: 18,
+                ),
             textAlign: TextAlign.center,
           ),
         ),
@@ -771,7 +774,11 @@ class PageBarState extends State<PageBar> {
     super.initState();
 
     int count = widget.pages.length;
-    spacing = count > 15 ? 1 : count > 10 ? 2 : 4;
+    spacing = count > 15
+        ? 1
+        : count > 10
+            ? 2
+            : 4;
 
     widget.animation.addListener(() {
       setState(() {});
@@ -799,7 +806,11 @@ class PageBarState extends State<PageBar> {
             padding: EdgeInsets.only(
                 right: widget.pages.last == it ? 0 : this.spacing),
             child: StoryProgressIndicator(
-              isPlaying(it) ? widget.animation.value : it.shown ? 1 : 0,
+              isPlaying(it)
+                  ? widget.animation.value
+                  : it.shown
+                      ? 1
+                      : 0,
               indicatorHeight:
                   widget.indicatorHeight == IndicatorHeight.large ? 5 : 3,
             ),
