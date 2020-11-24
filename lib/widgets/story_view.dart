@@ -129,7 +129,7 @@ class StoryItem {
                 child: Container(
                   width: double.infinity,
                   margin: EdgeInsets.only(
-                    bottom: 24,
+                    bottom: 70,
                   ),
                   padding: EdgeInsets.symmetric(
                     horizontal: 24,
@@ -235,7 +235,7 @@ class StoryItem {
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     width: double.infinity,
-                    margin: EdgeInsets.only(bottom: 24),
+                    margin: EdgeInsets.only(bottom: 70),
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                     color:
                         caption != null ? Colors.black54 : Colors.transparent,
@@ -286,7 +286,7 @@ class StoryItem {
                   child: Container(
                     width: double.infinity,
                     margin: EdgeInsets.only(
-                      bottom: 24,
+                      bottom: 70,
                     ),
                     padding: EdgeInsets.symmetric(
                       horizontal: 24,
@@ -398,6 +398,12 @@ class StoryView extends StatefulWidget {
 
   final Function(int index) onCompleteStoryItem;
 
+  final int currentIndex;
+
+  final Function() onForward;
+
+  final Function(int value) onBackward;
+
   StoryView({
     @required this.storyItems,
     @required this.controller,
@@ -409,6 +415,9 @@ class StoryView extends StatefulWidget {
     this.inline = false,
     this.onCompleteStoryItem,
     this.onVerticalSwipeComplete,
+    this.currentIndex = 0,
+    this.onForward,
+    this.onBackward,
   })  : assert(storyItems != null && storyItems.length > 0,
             "[storyItems] should not be null or empty"),
         assert(progressPosition != null, "[progressPosition] cannot be null"),
@@ -439,11 +448,16 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
   Widget get _currentView => widget.storyItems
       .firstWhere((it) => !it.shown, orElse: () => widget.storyItems.last)
       .view;
-
+  int _currentIndexOfStories;
   @override
   void initState() {
     super.initState();
-
+    _currentIndexOfStories = widget.currentIndex;
+    if (widget.currentIndex != 0) {
+      for (var i = 0; i < widget.currentIndex; i++) {
+        widget.storyItems[i].shown = true;
+      }
+    }
     // All pages after the first unshown page should have their shown value as
     // false
 
@@ -520,10 +534,15 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
 
   void _play() {
     _animationController?.dispose();
+    if (_currentIndexOfStories != 0) {
+      for (var i = 0; i < _currentIndexOfStories; i++) {
+        widget.storyItems[i].shown = true;
+      }
+    }
     // get the next playing page
     final storyItem = widget.storyItems.firstWhere((it) {
       return !it.shown;
-    },orElse: () {
+    }, orElse: () {
       widget.storyItems.forEach((it2) {
         it2.shown = false;
       });
@@ -541,6 +560,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         storyItem.shown = true;
+        _currentIndexOfStories++;
         widget.onCompleteStoryItem
             ?.call(widget.storyItems.indexOf(_currentStory));
         if (widget.storyItems.last != storyItem) {
@@ -555,7 +575,12 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     _currentAnimation =
         Tween(begin: 0.0, end: 1.0).animate(_animationController);
 
-    widget.controller.play();
+    if (widget.controller.playbackNotifier.stream.value ==
+        PlaybackState.pause) {
+      widget.controller.pause();
+    } else {
+      widget.controller.play();
+    }
   }
 
   void _beginPlay() {
@@ -586,6 +611,8 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     }
 
     if (this._currentStory == widget.storyItems.first) {
+      _currentIndexOfStories = 0;
+      widget.onBackward(0);
       // call to parent: previous func
       if (widget.onPreviousFirstItem == null) {
         _beginPlay();
@@ -595,9 +622,9 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     } else {
       this._currentStory.shown = false;
       int lastPos = widget.storyItems.indexOf(this._currentStory);
-      final previous = widget.storyItems[lastPos - 1];
-
-      previous.shown = false;
+      _currentIndexOfStories = lastPos - 1;
+      widget.onBackward(_currentIndexOfStories);
+      widget.storyItems[_currentIndexOfStories].shown = false;
 
       _beginPlay();
     }
@@ -614,6 +641,8 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
         _last.shown = true;
         if (_last != widget.storyItems.last) {
           _beginPlay();
+          widget.onForward();
+          _currentIndexOfStories++;
         }
       }
     } else {
@@ -639,6 +668,13 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.controller.playbackNotifier.stream.value ==
+        PlaybackState.pause) {
+      Future.delayed(
+          Duration(milliseconds: 100), () => widget.controller.pause());
+    } else {
+      widget.controller.play();
+    }
     return Container(
       color: Colors.white,
       child: Stack(
