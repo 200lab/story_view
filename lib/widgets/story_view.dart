@@ -2,12 +2,12 @@ import 'dart:math';
 import 'dart:ui';
 import 'dart:async';
 
+
 import 'package:flutter/material.dart';
+import 'package:story_view/controller/story_controller.dart';
+import 'package:story_view/utils.dart';
 import 'story_video.dart';
 import 'story_image.dart';
-
-import '../controller/story_controller.dart';
-import '../utils.dart';
 
 /// Indicates where the progress indicators should be placed.
 enum ProgressPosition { top, bottom }
@@ -453,11 +453,13 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _currentIndexOfStories = widget.currentIndex;
+
     if (widget.currentIndex != 0) {
       for (var i = 0; i < widget.currentIndex; i++) {
         widget.storyItems[i].shown = true;
       }
     }
+
     // All pages after the first unshown page should have their shown value as
     // false
 
@@ -566,6 +568,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
         if (widget.storyItems.last != storyItem) {
           _beginPlay();
         } else {
+          _currentIndexOfStories = 0;
           // done playing
           _onComplete();
         }
@@ -590,7 +593,6 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
 
   void _onComplete() {
     if (widget.onComplete != null) {
-      widget.controller.pause();
       widget.onComplete();
     }
 
@@ -622,6 +624,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     } else {
       this._currentStory.shown = false;
       int lastPos = widget.storyItems.indexOf(this._currentStory);
+
       _currentIndexOfStories = lastPos - 1;
       widget.onBackward(_currentIndexOfStories);
       widget.storyItems[_currentIndexOfStories].shown = false;
